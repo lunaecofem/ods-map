@@ -3,30 +3,81 @@
 <head>
   <meta charset="UTF-8">
   <title>모두를 위한 옹달샘 지도</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=27f59fa5635cc98fba48941abe374192&libraries=services"></script>
+  <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+  
   <style>
-    body { margin: 0; padding: 0; font-family: sans-serif; }
-    #header { background: #1DA1D2; color: white; padding: 15px; text-align: center; }
-    #map { width: 100%; height: 80vh; background: #f0f0f0; }
-    .info { padding: 20px; text-align: center; color: #666; }
+    @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+    body { margin: 0; padding: 0; font-family: 'Pretendard', sans-serif; background: #f8fbfe; color: #333; }
+    #header { background: white; padding: 12px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 3px solid #1DA1D2; height: 60px; box-sizing: border-box; }
+    #header h2 { margin: 0; font-size: 18px; color: #1DA1D2; font-weight: 800; }
+    #main-wrapper { display: flex; flex-direction: column; }
+    #map { height: 50vh; width: 100%; border-bottom: 1px solid #e0e0e0; }
+    .form-container { padding: 25px 20px; background: white; }
+    
+    @media (min-width: 768px) {
+      #main-wrapper { flex-direction: row; height: calc(100vh - 60px); }
+      #map { flex: 1.5; height: 100% !important; border-bottom: none; border-right: 1px solid #e0e0e0; }
+      .form-container { flex: 1; height: 100%; overflow-y: auto; max-width: 420px; }
+    }
+
+    .info-text { font-size: 13px; color: #168db9; background: #eaf7fd; padding: 12px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #1DA1D2; }
+    input, select, textarea { width: 100%; margin-bottom: 12px; padding: 14px; border: 1.5px solid #e3eef6; border-radius: 10px; box-sizing: border-box; font-size: 14px; background: #fafcfe; }
+    #submitBtn { width: 100%; padding: 16px; background: #1DA1D2; color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 16px; margin-top: 10px; }
+    #submitBtn:disabled { background: #ccc; }
   </style>
 </head>
 <body>
 
 <div id="header">
-  <h2>📍 옹달샘 지도 (테스트)</h2>
+  <span style="font-size: 24px;">🚰</span>
+  <h2>모두를 위한 옹달샘 지도</h2>
 </div>
 
-<div id="map"></div>
+<div id="main-wrapper">
+  <div id="map"></div>
 
-<div class="info">
-  <p>지도가 정상적으로 보인다면 성공입니다!</p>
+  <div class="form-container">
+    <div class="info-text">📍 지도를 클릭하면 마커가 생기며 주소가 자동 입력됩니다. 직접 주소를 검색하셔도 됩니다.</div>
+    
+    <input type="text" id="placeName" placeholder="장소 이름 (예: 환경연합 카페) *">
+    
+    <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+      <input type="text" id="address" placeholder="주소 자동 입력" style="margin-bottom:0; flex: 1;" readonly>
+      <button type="button" onclick="openAddrSearch()" style="width: 70px; background: #333; color: white; border-radius: 10px; border: none; cursor: pointer; font-size: 13px;">검색</button>
+    </div>
+
+    <input type="hidden" id="lat"><input type="hidden" id="lng">
+
+    <select id="placeType">
+      <option value="">장소 유형 선택 (필수) *</option>
+      <option value="카페">카페</option>
+      <option value="식당">식당</option>
+      <option value="공공기관">공공기관</option>
+      <option value="음수대">음수대</option>
+      <option value="기타">기타</option>
+    </select>
+
+    <select id="waterType">
+      <option value="">물 제공 방식 (필수) *</option>
+      <option value="물병 비치">물병 비치</option>
+      <option value="직원 문의">직원 문의</option>
+      <option value="정수기">정수기</option>
+      <option value="음수대">음수대</option>
+    </select>
+
+    <textarea id="memo" rows="3" placeholder="추가 정보 (예: 텀블러 지참 시 500원 할인)"></textarea>
+    
+    <button id="submitBtn" onclick="sendReport()">제보하기</button>
+    <p style="font-size: 11px; color: #999; text-align: center; margin-top: 15px;">제보는 관리자 승인 후 지도에 나타납니다.</p>
+  </div>
 </div>
 
 <script>
-  var map;
-  const GAS_URL = "https://script.google.com/macros/s/AKfycbx7_zTlamIhzCHU1_e0B95T3PsITQ0Nw4LmS6GmH8jM3eSKesVe54Knix9niMFWL_ItkA/exec"; 
+  var map, geocoder, tempMarker, infowindow;
+  // 아까 확인한 그 GAS 주소
+  const GAS_URL = "https://script.google.com/macros/s/AKfycbx7_zTlamIhzCHU1_e0B95T3PsITQ0Nw4LmS6GmH8jM3eSKesVe54Knix9niMFWL_ItkA/exec";
 
   window.onload = function() {
     var container = document.getElementById('map');
@@ -34,22 +85,57 @@
       center: new kakao.maps.LatLng(37.5665, 126.9780),
       level: 4
     });
+    geocoder = new kakao.maps.services.Geocoder();
+    tempMarker = new kakao.maps.Marker();
+    infowindow = new kakao.maps.InfoWindow({zIndex:1});
 
-    // 마법의 문장: GAS에서 데이터를 가져와서 마커를 찍어라!
+    // 1. 기존 승인된 마커들 불러오기
     fetch(GAS_URL)
-      .then(response => response.json())
+      .then(res => res.json())
       .then(locations => {
         locations.forEach(loc => {
           var marker = new kakao.maps.Marker({
             map: map,
             position: new kakao.maps.LatLng(loc.lat, loc.lng)
           });
-          // 마커 클릭 시 정보창 띄우기 로직 추가...
-          console.log("데이터 불러오기 성공:", loc.name);
+          
+          var content = `
+            <div style="padding:10px; min-width:150px;">
+              <strong style="color:#1DA1D2;">${loc.name}</strong><br>
+              <small>${loc.type} | ${loc.waterType}</small><br>
+              <p style="margin:5px 0 0; font-size:12px; color: #666;">${loc.memo || ''}</p>
+            </div>`;
+
+          kakao.maps.event.addListener(marker, 'click', function() {
+            infowindow.setContent(content);
+            infowindow.open(map, marker);
+          });
         });
       });
-  };
-</script>
 
-</body>
-</html>
+    // 2. 지도 클릭 시 제보 위치 설정
+    kakao.maps.event.addListener(map, 'click', function(mouseEvent) {
+      var latlng = mouseEvent.latLng;
+      tempMarker.setPosition(latlng);
+      tempMarker.setMap(map);
+      
+      document.getElementById('lat').value = latlng.getLat();
+      document.getElementById('lng').value = latlng.getLng();
+      
+      geocoder.coord2Address(latlng.getLng(), latlng.getLat(), function(result, status) {
+        if (status === kakao.maps.services.Status.OK) {
+          var addr = result[0].road_address ? result[0].road_address.address_name : result[0].address.address_name;
+          document.getElementById('address').value = addr;
+        }
+      });
+    });
+  };
+
+  // 주소 검색 창 열기
+  function openAddrSearch() {
+    new daum.Postcode({
+      oncomplete: function(data) {
+        var addr = data.roadAddress;
+        document.getElementById("address").value = addr;
+        geocoder.addressSearch(addr, function(result, status) {
+          if (status === kakao.maps.services.Status.OK)
