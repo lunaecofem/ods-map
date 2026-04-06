@@ -311,7 +311,7 @@
           canvas.width = width; canvas.height = height;
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, width, height);
-          payload.photoData = canvas.toDataURL('image/jpeg', 0.8);
+          payload.photoData = canvas.toDataURL('image/jpeg', 0.7);
           payload.photoName = file.name;
           submit(payload);
         };
