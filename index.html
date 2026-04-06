@@ -16,11 +16,25 @@
     #main-wrapper { display: flex; flex-direction: column; flex: 1; min-height: 0; position: relative; }
     #map { height: 45%; width: 100%; background: #f0f0f0; }
 
-    /* ✅ 필터 버튼 스타일 */
-    .filter-container { position: absolute; top: 10px; right: 10px; z-index: 10; display: flex; flex-direction: column; gap: 5px; }
-    .filter-btn { padding: 8px 12px; background: white; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 12px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: left; }
-    .filter-btn.active { background: #1DA1D2; color: white; border-color: #1DA1D2; font-weight: 700; }
-    .filter-title { font-size: 10px; color: #a0aec0; margin: 4px 0 0 4px; font-weight: bold; }
+    /* ✅ 필터 UI: 왼쪽 배치 + 접기/펴기 스타일 */
+    .filter-wrapper { position: absolute; top: 15px; left: 15px; z-index: 1000; }
+    .filter-toggle-btn { 
+        background: #1DA1D2; color: white; border: none; padding: 10px 15px; 
+        border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.2); 
+    }
+    .filter-content { 
+        display: none; background: white; margin-top: 10px; padding: 15px; 
+        border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        width: 180px; max-height: 400px; overflow-y: auto;
+    }
+    .filter-group { margin-bottom: 12px; }
+    .filter-group label { display: block; font-size: 11px; color: #a0aec0; margin-bottom: 5px; font-weight: bold; border-bottom: 1px solid #f0f4f8; padding-bottom: 2px; }
+    .filter-item { 
+        display: block; width: 100%; text-align: left; padding: 8px 10px; 
+        margin-bottom: 4px; border: 1px solid #f8fafc; border-radius: 6px; 
+        font-size: 13px; cursor: pointer; background: #fff; color: #4a5568;
+    }
+    .filter-item.active { background: #f0f9ff; color: #1DA1D2; border-color: #1DA1D2; font-weight: bold; }
 
     .form-container { padding: 25px 20px; background: white; flex: 1; overflow-y: auto; border-top: 1px solid #edf2f7; }
     @media (min-width: 768px) {
@@ -58,8 +72,15 @@
 <div id="main-wrapper">
   <div id="map"></div>
   
-  <div id="filter-box" class="filter-container">
-    <button class="filter-btn active" onclick="filterMarkers('all', 'all')" id="btn-all">전체보기</button>
+  <div class="filter-wrapper">
+    <button class="filter-toggle-btn" onclick="toggleFilter()">🔍 필터 (열기/닫기)</button>
+    <div id="filter-content" class="filter-content">
+      <div class="filter-group">
+        <button class="filter-item active" id="filter-all" onclick="clearFilter()">🔄 전체 초기화</button>
+      </div>
+      <div id="filter-place-group" class="filter-group"><label>📍 장소 유형</label></div>
+      <div id="filter-water-group" class="filter-group"><label>💧 제공 유형</label></div>
+    </div>
   </div>
 
   <div class="form-container">
@@ -101,6 +122,8 @@
   const GAS_URL = "https://script.google.com/macros/s/AKfycbx7_zTlamIhzCHU1_e0B95T3PsITQ0Nw4LmS6GmH8jM3eSKesVe54Knix9niMFWL_ItkA/exec"; 
   const markerImg = new kakao.maps.MarkerImage("https://cdn.imweb.me/thumbnail/20251128/b7491b79114f2.png", new kakao.maps.Size(45, 45));
 
+  var filterState = { place: 'all', water: 'all' };
+  
   // 데이터 로드
   fetch(GAS_URL).then(res => res.json()).then(res => {
     locationsData = res.locations; 
@@ -109,25 +132,82 @@
     if(map) renderMarkers();
   });
 
-  function createFilterButtons(config) {
-    const box = document.getElementById('filter-box');
-    ['장소유형', '제공유형'].forEach(key => {
-      const title = document.createElement('div');
-      title.className = 'filter-title';
-      title.innerText = key;
-      box.appendChild(title);
-      config[key].forEach(val => {
+  var filterState = { place: 'all', water: 'all' };
+
+// 필터 창 열고 닫기
+function toggleFilter() {
+    var content = document.getElementById('filter-content');
+    content.style.display = (content.style.display === 'block') ? 'none' : 'block';
+}
+
+// 필터 버튼 동적 생성 (설정값 기반)
+function createFilterButtons(config) {
+    const pGroup = document.getElementById('filter-place-group');
+    const wGroup = document.getElementById('filter-water-group');
+    
+    config["장소유형"].forEach(val => {
         const btn = document.createElement('button');
-        btn.className = 'filter-btn';
+        btn.className = 'filter-item';
         btn.innerText = val;
-        btn.onclick = function() {
-          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-          this.classList.add('active');
-          renderMarkers(key, val);
-        };
-        box.appendChild(btn);
-      });
+        btn.onclick = function() { applyFilter('place', val, this); };
+        pGroup.appendChild(btn);
     });
+    
+    config["제공유형"].forEach(val => {
+        const btn = document.createElement('button');
+        btn.className = 'filter-item';
+        btn.innerText = val;
+        btn.onclick = function() { applyFilter('water', val, this); };
+        wGroup.appendChild(btn);
+    });
+}
+
+// 필터 적용 로직
+function applyFilter(type, value, element) {
+    // UI 업데이트
+    element.parentElement.querySelectorAll('.filter-item').forEach(b => b.classList.remove('active'));
+    element.classList.add('active');
+    document.getElementById('filter-all').classList.remove('active');
+
+    // 상태 저장
+    if (type === 'place') filterState.place = value;
+    if (type === 'water') filterState.water = value;
+    
+    renderMarkers();
+}
+
+  // 초기화
+  function clearFilter() {
+      filterState = { place: 'all', water: 'all' };
+      document.querySelectorAll('.filter-item').forEach(b => b.classList.remove('active'));
+      document.getElementById('filter-all').classList.add('active');
+      renderMarkers();
+  }
+
+  // ✅ 마커 렌더링 (필터 상태 반영)
+  function renderMarkers() {
+      currentMarkers.forEach(m => m.setMap(null));
+      currentMarkers = [];
+      
+      locationsData.forEach(loc => {
+          if (loc.승인상태 === "승인") {
+              // 장소유형과 제공유형이 모두 맞는지 체크 (둘 다 all이면 패스)
+              const matchPlace = (filterState.place === 'all' || loc.장소유형 === filterState.place);
+              const matchWater = (filterState.water === 'all' || loc.제공유형 === filterState.water);
+              
+              if (matchPlace && matchWater) {
+                  var m = new kakao.maps.Marker({ map: map, position: new kakao.maps.LatLng(loc.위도, loc.경도), image: markerImg });
+                  // ... (기존 마커 클릭 이벤트 코드 그대로 유지) ...
+                  kakao.maps.event.addListener(m, 'click', function() {
+                      var picHtml = loc.사진 ? `<img src="${loc.사진}" class="iw-photo" onclick="window.open('${loc.사진}')">` : "";
+                      var content = `<div class="iw-container"><span class="iw-title" style="font-weight:800; color:#1DA1D2;">${loc.장소명}</span><div class="iw-tag-group" style="margin-top:5px;"><span class="iw-tag">${loc.장소유형}</span> <span class="iw-tag">${loc.제공유형}</span></div><div class="iw-memo" style="font-size:13px; margin-top:10px; border-top:1px dashed #ddd; padding-top:10px;">${loc.메모 || ''}</div>${picHtml}<button class="report-btn" onclick="openModify('${loc.일련번호}', '${loc.장소명}')" style="width:100%; margin-top:10px; padding:8px; font-size:11px; border:1px solid #eee; background:#fff; cursor:pointer;">정보 수정/삭제 신고</button></div>`;
+                      infowindow.setContent(content);
+                      infowindow.open(map, m);
+                  });
+                  currentMarkers.push(m);
+              }
+          }
+      });
   }
 
   window.onload = function() {
@@ -150,7 +230,23 @@
         }
       });
     });
-  };
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(pos) {
+                var moveLatLon = new kakao.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
+                map.setCenter(moveLatLon); // 내 위치로 지도 중심 이동
+            }, 
+            function(err) {
+                console.log("위치 정보를 가져올 수 없습니다.");
+            }
+        );
+    }
+
+    setTimeout(() => { map.relayout(); }, 100);
+    if(locationsData.length > 0) renderMarkers();
+  }; // window.onload 끝
+ 
 
   function renderMarkers(filterKey, filterVal) {
     currentMarkers.forEach(m => m.setMap(null));
