@@ -123,29 +123,27 @@
 </div>
 
 <script>
-  var map, ps, tempMarker, infowindow;
-  const GAS_URL = "https://script.google.com/macros/s/AKfycbx7_zTlamIhzCHU1_e0B95T3PsITQ0Nw4LmS6GmH8jM3eSKesVe54Knix9niMFWL_ItkA/exec"; 
-  // ✅ 마커 크기 확대 (기존 35 -> 45)
-  const markerImg = new kakao.maps.MarkerImage("https://cdn.imweb.me/thumbnail/20251128/b7491b79114f2.png", new kakao.maps.Size(45, 45));
-
-    // 전역 변수로 미리 선언
+  // 1. 전역 변수 설정 (중복 제거 및 통합)
   var map, ps, tempMarker, infowindow;
   var locationsData = [];
+  const GAS_URL = "https://script.google.com/macros/s/AKfycbx7_zTlamIhzCHU1_e0B95T3PsITQ0Nw4LmS6GmH8jM3eSKesVe54Knix9niMFWL_ItkA/exec"; 
+  const markerImg = new kakao.maps.MarkerImage("https://cdn.imweb.me/thumbnail/20251128/b7491b79114f2.png", new kakao.maps.Size(45, 45));
 
+  // 2. [최적화] 페이지 로드와 동시에 데이터부터 불러오기 (마커 빨리 뜨게 함)
   fetch(GAS_URL)
     .then(res => res.json())
     .then(res => {
-      locationsData = res.locations; // 장소 데이터
-      updateDropdowns(res.config);   // 드롭다운 업데이트 함수 호출
-      if(map) renderMarkers();
+      locationsData = res.locations; 
+      updateDropdowns(res.config);   
+      if(map) renderMarkers(); // 만약 지도가 이미 로드되었다면 바로 마커 그리기
     });
-  
-  // 드롭다운을 시트 데이터로 채우는 함수
+
+  // 드롭다운 업데이트 기능
   function updateDropdowns(config) {
     const placeSelect = document.getElementById('placeType');
     const waterSelect = document.getElementById('waterType');
-  
-    // 기존 옵션 유지(첫 번째 '선택' 옵션 제외)하고 초기화
+    if(!placeSelect || !waterSelect) return;
+
     placeSelect.innerHTML = '<option value="">장소 유형 선택</option>';
     waterSelect.innerHTML = '<option value="">제공 유형 선택</option>';
   
@@ -156,7 +154,8 @@
       waterSelect.innerHTML += `<option value="${val}">${val}</option>`;
     });
   }
-  
+
+  // 3. 지도 초기화
   window.onload = function() {
     var container = document.getElementById('map');
     map = new kakao.maps.Map(container, { center: new kakao.maps.LatLng(37.5665, 126.9780), level: 4 });
@@ -164,18 +163,17 @@
     tempMarker = new kakao.maps.Marker({ image: markerImg });
     infowindow = new kakao.maps.InfoWindow({ zIndex: 10, removable: true });
   
-    // 내 위치 잡기
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(pos => map.setCenter(new kakao.maps.LatLng(pos.coords.latitude, pos.coords.longitude)));
     }
   
-    setTimeout(() => { map.relayout(); }, 300);
+    setTimeout(() => { map.relayout(); }, 100); // 속도 향상을 위해 지연시간 단축
   
-    // 데이터가 이미 도착해 있다면 마커 그리기
-    if(locationsData.length > 0) renderMarkers();
+    // 데이터가 먼저 도착해 있었다면 여기서 마커 그리기
+    if(locationsData && locationsData.length > 0) renderMarkers();
   };
-  
-  // 마커를 그리는 기능 분리 (더 빠름)
+
+  // 마커 그리기 기능
   function renderMarkers() {
     locationsData.forEach(loc => {
       if (loc.승인상태 === "승인") {
@@ -202,6 +200,7 @@
     });
   }
 
+  // 장소 검색 기능
   function searchPlaces() {
     var keyword = document.getElementById('keyword').value;
     if (!keyword) return alert('장소명을 입력하세요.');
@@ -229,6 +228,7 @@
     });
   }
 
+  // 제보하기 기능
   function sendReport() {
     const btn = document.getElementById('submitBtn');
     if(!document.getElementById('placeName').value || !document.getElementById('lat').value) return alert("장소를 검색하여 선택해주세요.");
@@ -251,6 +251,7 @@
     .catch(() => { alert("전송 실패"); btn.disabled = false; btn.innerText = "제보하기"; });
   }
 
+  // 수정 요청 기능
   function openModify(id, name) {
     var reason = prompt(`[${name}] 수정 또는 삭제가 필요한 이유를 적어주세요.`);
     if(!reason) return;
