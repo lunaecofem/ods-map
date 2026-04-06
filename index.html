@@ -9,106 +9,121 @@
   
   <style>
     @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-    body { margin: 0; padding: 0; font-family: 'Pretendard', sans-serif; background: #f8fbfe; color: #333; }
-    #header { background: white; padding: 12px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 3px solid #1DA1D2; height: 60px; box-sizing: border-box; }
-    #header h2 { margin: 0; font-size: 18px; color: #1DA1D2; font-weight: 800; }
-    #main-wrapper { display: flex; flex-direction: column; }
-    #map { height: 50vh; width: 100%; border-bottom: 1px solid #e0e0e0; }
-    .form-container { padding: 25px 20px; background: white; }
+    body { margin: 0; padding: 0; font-family: 'Pretendard', sans-serif; background: #f8fbfe; color: #333; display: flex; flex-direction: column; min-height: 100vh; }
     
+    /* 헤더 스타일 (로고 포함) */
+    #header { background: white; padding: 12px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 3px solid #1DA1D2; height: 60px; box-sizing: border-box; }
+    #header img { height: 35px; } /* 로고 높이 조절 */
+    #header h2 { margin: 0; font-size: 18px; font-weight: 700; color: #1DA1D2; letter-spacing: -0.5px; }
+    
+    #main-wrapper { display: flex; flex-direction: column; flex: 1; }
+    #map { height: 45vh; width: 100%; border-bottom: 1px solid #e0e0e0; background: #eee; }
+    .form-container { padding: 25px 20px; background: white; width: 100%; box-sizing: border-box; }
+    
+    /* PC/태블릿 화면 레이아웃 */
     @media (min-width: 768px) {
-      #main-wrapper { flex-direction: row; height: calc(100vh - 60px); }
+      #main-wrapper { flex-direction: row; height: calc(100vh - 120px); } /* 헤더+푸터 높이 제외 */
       #map { flex: 1.5; height: 100% !important; border-bottom: none; border-right: 1px solid #e0e0e0; }
-      .form-container { flex: 1; height: 100%; overflow-y: auto; max-width: 420px; }
+      .form-container { flex: 1; height: 100%; overflow-y: auto; max-width: 450px; }
     }
 
-    .info-text { font-size: 13px; color: #168db9; background: #eaf7fd; padding: 12px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #1DA1D2; }
-    input, select, textarea { width: 100%; margin-bottom: 12px; padding: 14px; border: 1.5px solid #e3eef6; border-radius: 10px; box-sizing: border-box; font-size: 14px; background: #fafcfe; }
+    /* 입력창 스타일 */
+    .info-text { font-size: 13px; color: #168db9; margin-bottom: 15px; font-weight: 600; background: #eaf7fd; padding: 12px; border-radius: 10px; border-left: 5px solid #1DA1D2; }
+    input, select, textarea { width: 100%; margin-bottom: 14px; padding: 14px; border: 1.5px solid #e3eef6; border-radius: 10px; box-sizing: border-box; font-size: 14px; background: #fafcfe; font-family: 'Pretendard', sans-serif; height: 48px; }
+    textarea { height: auto !important; }
     #submitBtn { width: 100%; padding: 16px; background: #1DA1D2; color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 16px; margin-top: 10px; }
-    #submitBtn:disabled { background: #ccc; }
+    #submitBtn:disabled { background: #ccc; cursor: not-allowed; }
+
+    /* 푸터 스타일 (로고 포함) */
+    #footer { background: white; padding: 20px 10px; text-align: center; border-top: 1px solid #f0f0f0; font-size: 11px; color: #999; height: 60px; box-sizing: border-box; }
+    #footer img { height: 20px; vertical-align: middle; margin-right: 5px; opacity: 0.7; }
   </style>
 </head>
 <body>
 
 <div id="header">
-  <span style="font-size: 24px;">🚰</span>
+  <img src="https://cdn.imweb.me/thumbnail/20251128/b7491b79114f2.png" alt="로고">
   <h2>모두를 위한 옹달샘 지도</h2>
 </div>
 
 <div id="main-wrapper">
   <div id="map"></div>
-
   <div class="form-container">
-    <div class="info-text">📍 지도를 클릭하면 마커가 생기며 주소가 자동 입력됩니다. 직접 주소를 검색하셔도 됩니다.</div>
-    
-    <input type="text" id="placeName" placeholder="장소 이름 (예: 환경연합 카페) *">
-    
-    <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-      <input type="text" id="address" placeholder="주소 자동 입력" style="margin-bottom:0; flex: 1;" readonly>
-      <button type="button" onclick="openAddrSearch()" style="width: 70px; background: #333; color: white; border-radius: 10px; border: none; cursor: pointer; font-size: 13px;">검색</button>
+    <div class="info-text">📍 지도 클릭 시 주소가 자동 입력되며, [검색]으로 찾을 수도 있습니다.</div>
+    <input type="text" id="placeName" placeholder="장소명 입력 (필수) *">
+    <div style="display: flex; gap: 8px; align-items: stretch; margin-bottom: 14px;">
+      <input type="text" id="address" placeholder="주소를 선택하거나 입력하세요" style="margin-bottom:0; flex: 1; border: 2px solid #1DA1D2; background: #fff;">
+      <button type="button" onclick="openAddrSearch()" style="width: 70px; background: #333; color: white; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; border: none;">검색</button>
     </div>
-
     <input type="hidden" id="lat"><input type="hidden" id="lng">
-
-    <select id="placeType">
-      <option value="">장소 유형 선택 (필수) *</option>
-      <option value="카페">카페</option>
-      <option value="식당">식당</option>
-      <option value="공공기관">공공기관</option>
-      <option value="음수대">음수대</option>
-      <option value="기타">기타</option>
-    </select>
-
-    <select id="waterType">
-      <option value="">물 제공 방식 (필수) *</option>
-      <option value="물병 비치">물병 비치</option>
-      <option value="직원 문의">직원 문의</option>
-      <option value="정수기">정수기</option>
-      <option value="음수대">음수대</option>
-    </select>
-
-    <textarea id="memo" rows="3" placeholder="추가 정보 (예: 텀블러 지참 시 500원 할인)"></textarea>
-    
+    <div style="display: flex; gap: 8px;">
+      <select id="placeType">
+        <option value="">장소 유형 선택 (필수) *</option>
+        <option value="카페">카페</option><option value="식당">식당</option><option value="공공기관">공공기관</option><option value="음수대">음수대</option><option value="기타">기타</option>
+      </select>
+      <select id="waterType">
+        <option value="">물 제공 유형 (필수) *</option>
+        <option value="물병 비치">물병 비치</option><option value="직원 문의">직원 문의</option><option value="정수기">정수기</option><option value="음수대">음수대</option>
+      </select>
+    </div>
+    <textarea id="memo" rows="3" placeholder="추가 메모 (예: 1층 로비에 있어요)"></textarea>
     <button id="submitBtn" onclick="sendReport()">제보하기</button>
-    <p style="font-size: 11px; color: #999; text-align: center; margin-top: 15px;">제보는 관리자 승인 후 지도에 나타납니다.</p>
   </div>
+</div>
+
+<div id="footer">
+  <img src="https://cdn.imweb.me/thumbnail/20251128/b7491b79114f2.png" alt="로고">
+  <span>© EcoFem. All rights reserved.</span>
 </div>
 
 <script>
   var map, geocoder, tempMarker, infowindow;
-  // 아까 확인한 그 GAS 주소
-  const GAS_URL = "https://script.google.com/macros/s/AKfycbx7_zTlamIhzCHU1_e0B95T3PsITQ0Nw4LmS6GmH8jM3eSKesVe54Knix9niMFWL_ItkA/exec";
+  
+  // ✅ 마커 이미지 설정 (기존에 주셨던 이미지 주소 활용)
+  const markerImageUrl = "https://cdn.imweb.me/thumbnail/20251128/b7491b79114f2.png"; 
+  const markerImageSize = new kakao.maps.Size(35, 35); // 마커 크기
+  const markerOption = {offset: new kakao.maps.Point(17, 35)}; // 마커 중심점 설정
+  const kakaoMarkerImage = new kakao.maps.MarkerImage(markerImageUrl, markerImageSize, markerOption);
+
+  // ✅ 제보 클릭 위치 마커 이미지 (다른 이미지로 구분해도 좋습니다. 여기선 같은 로고 사용)
+  const tempMarkerImage = new kakao.maps.MarkerImage(markerImageUrl, new kakao.maps.Size(40, 40), {offset: new kakao.maps.Point(20, 40)});
+
+  // ⚠️ 중요: 본인의 GAS 배포 주소로 교체하세요!
+  const GAS_URL = "https://script.google.com/macros/s/AKfycbx7_zTlamIhzCHU1_e0B95T3PsITQ0Nw4LmS6GmH8jM3eSKesVe54Knix9niMFWL_ItkA/exec"; 
 
   window.onload = function() {
     var container = document.getElementById('map');
-    map = new kakao.maps.Map(container, {
-      center: new kakao.maps.LatLng(37.5665, 126.9780),
-      level: 4
-    });
+    map = new kakao.maps.Map(container, { center: new kakao.maps.LatLng(37.5665, 126.9780), level: 4 });
     geocoder = new kakao.maps.services.Geocoder();
-    tempMarker = new kakao.maps.Marker();
+    
+    // 클릭 위치 표시용 임시 마커 (이미지 적용)
+    tempMarker = new kakao.maps.Marker({ image: tempMarkerImage }); 
     infowindow = new kakao.maps.InfoWindow({zIndex:1});
 
-    // 1. 기존 승인된 마커들 불러오기
+    // 지도 크기 재계산 (모바일 레이아웃 버그 방지)
+    setTimeout(function() { map.relayout(); }, 500);
+
+    // 1. 기존 데이터 불러오기 및 마커 표시
     fetch(GAS_URL)
       .then(res => res.json())
       .then(locations => {
         locations.forEach(loc => {
-          var marker = new kakao.maps.Marker({
-            map: map,
-            position: new kakao.maps.LatLng(loc.lat, loc.lng)
+          // 커스텀 이미지를 적용하여 마커 생성
+          var marker = new kakao.maps.Marker({ 
+            map: map, 
+            position: new kakao.maps.LatLng(loc.lat, loc.lng),
+            image: kakaoMarkerImage // ✅ 커스텀 마커 이미지 적용
           });
           
           var content = `
-            <div style="padding:10px; min-width:150px;">
-              <strong style="color:#1DA1D2;">${loc.name}</strong><br>
-              <small>${loc.type} | ${loc.waterType}</small><br>
-              <p style="margin:5px 0 0; font-size:12px; color: #666;">${loc.memo || ''}</p>
+            <div style="padding:15px; min-width:180px; font-family:'Pretendard', sans-serif;">
+              <strong style="color:#1DA1D2; font-size:15px;">${loc.name}</strong><br>
+              <small style="color:#666;">${loc.type} | ${loc.waterType}</small><br>
+              <p style="margin:8px 0 0; font-size:13px; color: #444; line-height:1.4;">${loc.memo || ''}</p>
             </div>`;
 
           kakao.maps.event.addListener(marker, 'click', function() {
-            infowindow.setContent(content);
-            infowindow.open(map, marker);
+            infowindow.setContent(content); infowindow.open(map, marker);
           });
         });
       });
@@ -116,26 +131,71 @@
     // 2. 지도 클릭 시 제보 위치 설정
     kakao.maps.event.addListener(map, 'click', function(mouseEvent) {
       var latlng = mouseEvent.latLng;
-      tempMarker.setPosition(latlng);
-      tempMarker.setMap(map);
-      
+      tempMarker.setPosition(latlng); tempMarker.setMap(map);
       document.getElementById('lat').value = latlng.getLat();
       document.getElementById('lng').value = latlng.getLng();
-      
       geocoder.coord2Address(latlng.getLng(), latlng.getLat(), function(result, status) {
         if (status === kakao.maps.services.Status.OK) {
-          var addr = result[0].road_address ? result[0].road_address.address_name : result[0].address.address_name;
-          document.getElementById('address').value = addr;
+          document.getElementById('address').value = result[0].address.address_name;
         }
       });
     });
   };
 
-  // 주소 검색 창 열기
   function openAddrSearch() {
     new daum.Postcode({
       oncomplete: function(data) {
         var addr = data.roadAddress;
         document.getElementById("address").value = addr;
         geocoder.addressSearch(addr, function(result, status) {
-          if (status === kakao.maps.services.Status.OK)
+          if (status === kakao.maps.services.Status.OK) {
+            var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+            document.getElementById('lat').value = result[0].y;
+            document.getElementById('lng').value = result[0].x;
+            tempMarker.setPosition(coords); tempMarker.setMap(map); map.setCenter(coords);
+          }
+        });
+      }
+    }).open();
+  }
+
+  function sendReport() {
+    const name = document.getElementById('placeName').value;
+    const lat = document.getElementById('lat').value;
+    
+    if(!name || !lat) {
+      alert("지도에서 위치를 클릭하거나 주소를 검색하고 장소 이름을 적어주세요!");
+      return;
+    }
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.innerText = "제보 전송 중...";
+
+    const reportData = {
+      name: name,
+      address: document.getElementById('address').value,
+      lat: lat,
+      lng: document.getElementById('lng').value,
+      placeType: document.getElementById('placeType').value,
+      waterType: document.getElementById('waterType').value,
+      memo: document.getElementById('memo').value
+    };
+
+    fetch(GAS_URL, {
+      method: "POST",
+      body: JSON.stringify(reportData)
+    })
+    .then(res => res.text())
+    .then(msg => {
+      alert("제보가 접수되었습니다! 관리자 승인 후 지도에 나타납니다.");
+      location.reload(); 
+    })
+    .catch(err => {
+      alert("오류가 발생했습니다. 다시 시도해주세요.");
+      btn.disabled = false; btn.innerText = "제보하기";
+    });
+  }
+</script>
+</body>
+</html>
