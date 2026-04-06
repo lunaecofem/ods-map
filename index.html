@@ -57,8 +57,24 @@
     .iw-container { padding: 10px; width: 260px; }
     .iw-tag-group { display: flex; align-items: center; gap: 15px; margin-top: 8px; }
     .iw-tag { font-size: 12px; color: #718096; display: flex; align-items: center; gap: 3px; }
-    .iw-photo { width: 100%; border-radius: 8px; margin: 10px 0; cursor: pointer; border: 1px solid #eee; }
-    .report-btn { font-size: 13px !important; font-weight: 700 !important; color: #e53e3e !important; }
+    /* ✅ 팝업창 내 이미지 스타일 수정 */
+    .iw-photo { 
+      width: 100%; 
+      max-height: 150px; /* 너무 크지 않게 제한 */
+      min-height: 100px; /* 엑박일 때도 공간 확보해서 깨짐 방지 */
+      object-fit: cover; /* 이미지 비율 유지 */
+      border-radius: 8px; 
+      margin: 10px 0; 
+      cursor: pointer; 
+      border: 1px solid #eee;
+      background: #f8fafc; /* 로딩 중이거나 엑박일 때 배경색 */
+    }
+    
+    /* ✅ 엑박 아이콘 숨기기 (선택사항) */
+    .iw-photo:not([src]), .iw-photo[src=""] {
+      display: none;
+    }
+        .report-btn { font-size: 13px !important; font-weight: 700 !important; color: #e53e3e !important; }
     
     #footer { background: #fff; padding: 10px 20px 30px 20px; text-align: center; border-top: 1px solid #f7fafc; cursor: pointer; }
     #footer img { height: 65px; }
