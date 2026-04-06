@@ -121,7 +121,7 @@
   var map, ps, geocoder, tempMarker, infowindow;
   var locationsData = [];
   var currentMarkers = [];
-  const GAS_URL = "https://script.google.com/macros/s/AKfycbx7_zTlamIhzCHU1_e0B95T3PsITQ0Nw4LmS6GmH8jM3eSKesVe54Knix9niMFWL_ItkA/exec"; 
+  const GAS_URL = "https://script.google.com/macros/s/AKfycbzwv6ecGh3t-dL77pIPt7qh9FRlQLBLa8JAfc6UqrUYVZRkk-MLHrM8zqq9CJLauYSm-w/exec"; 
   const markerImg = new kakao.maps.MarkerImage("https://cdn.imweb.me/thumbnail/20251128/b7491b79114f2.png", new kakao.maps.Size(45, 45));
 
   var filterState = { place: 'all', water: 'all' };
@@ -285,7 +285,7 @@
     const wType = document.getElementById('waterType').value;
 
     if(!name || !addr || !pType || !wType) {
-        alert("장소명, 주소, 유형을 모두 선택해주세요!");
+        alert("장소명, 주소, 유형을 모두 입력해주세요!");
         return;
     }
 
