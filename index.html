@@ -4,43 +4,49 @@
   <meta charset="UTF-8">
   <title>모두를 위한 옹달샘 지도</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=27f59fa5635cc98fba48941abe374192&libraries=services"></script>
+  <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>모두를 위한 옹달샘 지도</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=본인의_자바스크립트_키&libraries=services"></script>
   <style>
     @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
     body { margin: 0; padding: 0; font-family: 'Pretendard', sans-serif; background: #f8fbfe; color: #333; display: flex; flex-direction: column; min-height: 100vh; }
     
-    /* 헤더: 옹달샘 로고 */
     #header { background: white; padding: 12px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 3px solid #1DA1D2; height: 60px; box-sizing: border-box; }
     #header img { height: 35px; } 
     #header h2 { margin: 0; font-size: 18px; font-weight: 800; color: #1DA1D2; }
     
     #main-wrapper { display: flex; flex-direction: column; flex: 1; }
-    #map { height: 40vh; width: 100%; border-bottom: 1px solid #e0e0e0; background: #eee; }
-    .form-container { padding: 20px; background: white; flex: 1; border-bottom: 1px solid #eee; }
+    #map { height: 45vh; width: 100%; border-bottom: 1px solid #e0e0e0; background: #eee; }
+    .form-container { padding: 25px 20px; background: white; flex: 1; box-sizing: border-box; }
     
     @media (min-width: 768px) {
-      #main-wrapper { flex-direction: row; height: calc(100vh - 180px); } /* 헤더+푸터 높이 제외 */
-      #map { flex: 1.5; height: 100% !important; border-bottom: none; border-right: 1px solid #e0e0e0; }
+      #main-wrapper { flex-direction: row; height: calc(100vh - 185px); } 
+      #map { flex: 1.6; height: 100% !important; border-bottom: none; border-right: 1px solid #e0e0e0; }
       .form-container { flex: 1; overflow-y: auto; max-width: 420px; }
     }
 
-    /* 입력창 및 검색창 스타일 */
-    .search-box { display: flex; gap: 8px; margin-bottom: 10px; }
-    input, select, textarea { width: 100%; margin-bottom: 12px; padding: 12px; border: 1.5px solid #e3eef6; border-radius: 10px; box-sizing: border-box; font-size: 14px; font-family: inherit; }
-    #searchBtn { width: 80px; background: #1DA1D2; color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; }
+    /* ✅ 검색창 & 버튼 높이 정렬 수정 */
+    .search-box { display: flex; gap: 6px; margin-bottom: 12px; align-items: stretch; }
+    input, select, textarea { width: 100%; margin-bottom: 12px; padding: 0 12px; border: 1.5px solid #e3eef6; border-radius: 10px; box-sizing: border-box; font-size: 14px; font-family: inherit; height: 45px; }
+    textarea { height: auto !important; padding: 12px; }
     
-    /* ✅ 제보 버튼 중복 클릭 방지 스타일 */
-    #submitBtn { width: 100%; padding: 16px; background: #1DA1D2; color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 16px; transition: 0.3s; }
-    #submitBtn:disabled { background: #ccc !important; cursor: not-allowed; opacity: 0.8; }
+    /* 검색 버튼 디자인 최적화 */
+    #searchBtn { width: 70px; height: 45px; background: #1DA1D2; color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px; flex-shrink: 0; }
     
-    #searchList { list-style: none; padding: 0; margin: 0 0 15px 0; max-height: 180px; overflow-y: auto; border: 1px solid #e3eef6; border-radius: 10px; display: none; }
-    #searchList li { padding: 10px; border-bottom: 1px solid #f0f0f0; cursor: pointer; font-size: 13px; }
+    #submitBtn { width: 100%; padding: 16px; background: #1DA1D2; color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 16px; margin-top: 5px; }
+    #submitBtn:disabled { background: #ccc !important; cursor: not-allowed; }
+    
+    #searchList { list-style: none; padding: 0; margin: -5px 0 15px 0; max-height: 180px; overflow-y: auto; border: 1px solid #e3eef6; border-radius: 10px; display: none; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    #searchList li { padding: 12px; border-bottom: 1px solid #f0f0f0; cursor: pointer; font-size: 13px; }
     #searchList li:hover { background: #eaf7fd; }
 
-    /* ✅ 푸터: 여성환경연대 로고 (크기 2배) */
-    #footer { background: #f9f9f9; padding: 30px 20px; text-align: center; border-top: 1px solid #eee; box-sizing: border-box; }
-    #footer img { height: 60px; margin-bottom: 12px; } /* 로고 높이 30px -> 60px로 확대 */
-    #footer p { margin: 0; font-size: 13px; color: #777; font-weight: 500; }
+    #footer { background: #f9f9f9; padding: 30px 20px; text-align: center; border-top: 1px solid #eee; }
+    #footer img { height: 60px; margin-bottom: 12px; }
+    #footer p { margin: 0; font-size: 13px; color: #777; }
   </style>
 </head>
 <body>
@@ -54,7 +60,7 @@
   <div id="map"></div>
   <div class="form-container">
     <div class="search-box">
-      <input type="text" id="keyword" placeholder="상호명 검색 (예: 환경연합 카페)" onkeypress="if(event.keyCode==13) { searchPlaces(); return false; }">
+      <input type="text" id="keyword" placeholder="상호명 검색 (예: 환경연합 카페)" onkeypress="if(event.keyCode==13) { searchPlaces(); return false; }" style="margin-bottom:0;">
       <button id="searchBtn" onclick="searchPlaces()">검색</button>
     </div>
     <ul id="searchList"></ul>
@@ -73,7 +79,7 @@
         <option value="물병 비치">물병 비치</option><option value="직원 문의">직원 문의</option><option value="정수기">정수기</option><option value="음수대">음수대</option>
       </select>
     </div>
-    <textarea id="memo" rows="2" placeholder="추가 메모"></textarea>
+    <textarea id="memo" rows="2" placeholder="추가 메모 (예: 텀블러 지참 시 할인)"></textarea>
     <button id="submitBtn" onclick="sendReport()">제보하기</button>
   </div>
 </div>
@@ -85,29 +91,30 @@
 
 <script>
   var map, ps, geocoder, tempMarker, infowindow;
-  // ⚠️ 2. 여기에 본인의 GAS 배포 URL(웹앱 URL)을 입력하세요
-  const GAS_URL = "https://script.google.com/macros/s/AKfycbx7_zTlamIhzCHU1_e0B95T3PsITQ0Nw4LmS6GmH8jM3eSKesVe54Knix9niMFWL_ItkA/exec"; 
+  // ⚠️ 2. 본인의 GAS 웹앱 URL 입력
+  const GAS_URL = "본인의_GAS_URL_입력"; 
   const markerImg = new kakao.maps.MarkerImage("https://cdn.imweb.me/thumbnail/20251128/b7491b79114f2.png", new kakao.maps.Size(35, 35));
 
   window.onload = function() {
     var container = document.getElementById('map');
-    if (!container) return;
     map = new kakao.maps.Map(container, { center: new kakao.maps.LatLng(37.5665, 126.9780), level: 4 });
     ps = new kakao.maps.services.Places();
     geocoder = new kakao.maps.services.Geocoder();
     tempMarker = new kakao.maps.Marker({ image: markerImg });
     infowindow = new kakao.maps.InfoWindow({ zIndex: 1 });
 
-    // 데이터 로드
+    // 데스크탑 지도 크기 보정
+    setTimeout(function(){ map.relayout(); }, 100);
+
     fetch(GAS_URL).then(res => res.json()).then(locations => {
       locations.forEach(loc => {
         var m = new kakao.maps.Marker({ map: map, position: new kakao.maps.LatLng(loc.lat, loc.lng), image: markerImg });
         kakao.maps.event.addListener(m, 'click', function() {
-          infowindow.setContent(`<div style="padding:10px;font-size:12px;"><b>${loc.name}</b><br>${loc.waterType}</div>`);
+          infowindow.setContent(`<div style="padding:15px;font-size:13px;line-height:1.4;"><b>${loc.name}</b><br><span style="color:#1DA1D2">${loc.waterType}</span></div>`);
           infowindow.open(map, m);
         });
       });
-    }).catch(err => console.error("데이터 로드 실패:", err));
+    });
 
     kakao.maps.event.addListener(map, 'click', function(e) {
       displaySelectedPlace(e.latLng.getLat(), e.latLng.getLng(), "");
@@ -124,7 +131,7 @@
         listEl.style.display = "block";
         data.forEach(place => {
           var li = document.createElement('li');
-          li.innerHTML = `<b>${place.place_name}</b><br><small>${place.address_name}</small>`;
+          li.innerHTML = `<b>${place.place_name}</b><br><small style="color:#888">${place.address_name}</small>`;
           li.onclick = () => {
             document.getElementById('placeName').value = place.place_name;
             document.getElementById('address').value = place.address_name;
@@ -153,46 +160,201 @@
 
   function sendReport() {
     const submitBtn = document.getElementById('submitBtn');
-    
-    // 필수값 체크
-    const name = document.getElementById('placeName').value;
-    const lat = document.getElementById('lat').value;
-    const placeType = document.getElementById('placeType').value;
-    const waterType = document.getElementById('waterType').value;
-
-    if(!name || !lat || !placeType || !waterType) {
-      alert("장소를 선택하고 필수 항목(*)을 모두 입력해주세요!");
+    if(!document.getElementById('placeName').value || !document.getElementById('lat').value) {
+      alert("장소를 선택하고 이름을 입력해주세요!");
       return;
     }
 
-    // ✅ 중복 클릭 방지 시작: 버튼 즉시 비활성화 및 텍스트 변경
     submitBtn.disabled = true;
     submitBtn.innerText = "제보 전송 중...";
 
     const data = {
-      name: name,
+      name: document.getElementById('placeName').value,
       address: document.getElementById('address').value,
-      lat: lat,
+      lat: document.getElementById('lat').value,
       lng: document.getElementById('lng').value,
-      placeType: placeType,
-      waterType: waterType,
+      placeType: document.getElementById('placeType').value,
+      waterType: document.getElementById('waterType').value,
       memo: document.getElementById('memo').value
     };
 
     fetch(GAS_URL, { method: "POST", body: JSON.stringify(data) })
-    .then(res => res.text())
-    .then(msg => { 
-      // 전송 성공 시
-      alert("제보가 성공적으로 접수되었습니다! 관리자 승인 후 지도에 나타납니다."); 
-      location.reload(); // 성공 후 새로고침하여 입력값 초기화
-    })
-    .catch(err => { 
-      // 전송 실패 시: 버튼 다시 활성화
-      alert("전송에 실패했습니다. 네트워크 상태를 확인하고 다시 시도해주세요."); 
-      console.error("제보 오류:", err);
-      submitBtn.disabled = false;
-      submitBtn.innerText = "제보하기";
+    .then(() => { alert("제보가 성공적으로 접수되었습니다!"); location.reload(); })
+    .catch(() => { alert("오류 발생!"); submitBtn.disabled = false; submitBtn.innerText = "제보하기"; });
+  }
+</script>
+</body>
+</html>&libraries=services"></script>
+  <style>
+    @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+    body { margin: 0; padding: 0; font-family: 'Pretendard', sans-serif; background: #f8fbfe; color: #333; display: flex; flex-direction: column; min-height: 100vh; }
+    
+    #header { background: white; padding: 12px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 3px solid #1DA1D2; height: 60px; box-sizing: border-box; }
+    #header img { height: 35px; } 
+    #header h2 { margin: 0; font-size: 18px; font-weight: 800; color: #1DA1D2; }
+    
+    #main-wrapper { display: flex; flex-direction: column; flex: 1; }
+    #map { height: 45vh; width: 100%; border-bottom: 1px solid #e0e0e0; background: #eee; }
+    .form-container { padding: 25px 20px; background: white; flex: 1; box-sizing: border-box; }
+    
+    @media (min-width: 768px) {
+      #main-wrapper { flex-direction: row; height: calc(100vh - 185px); } 
+      #map { flex: 1.6; height: 100% !important; border-bottom: none; border-right: 1px solid #e0e0e0; }
+      .form-container { flex: 1; overflow-y: auto; max-width: 420px; }
+    }
+
+    /* ✅ 검색창 & 버튼 높이 정렬 수정 */
+    .search-box { display: flex; gap: 6px; margin-bottom: 12px; align-items: stretch; }
+    input, select, textarea { width: 100%; margin-bottom: 12px; padding: 0 12px; border: 1.5px solid #e3eef6; border-radius: 10px; box-sizing: border-box; font-size: 14px; font-family: inherit; height: 45px; }
+    textarea { height: auto !important; padding: 12px; }
+    
+    /* 검색 버튼 디자인 최적화 */
+    #searchBtn { width: 70px; height: 45px; background: #1DA1D2; color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px; flex-shrink: 0; }
+    
+    #submitBtn { width: 100%; padding: 16px; background: #1DA1D2; color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 16px; margin-top: 5px; }
+    #submitBtn:disabled { background: #ccc !important; cursor: not-allowed; }
+    
+    #searchList { list-style: none; padding: 0; margin: -5px 0 15px 0; max-height: 180px; overflow-y: auto; border: 1px solid #e3eef6; border-radius: 10px; display: none; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    #searchList li { padding: 12px; border-bottom: 1px solid #f0f0f0; cursor: pointer; font-size: 13px; }
+    #searchList li:hover { background: #eaf7fd; }
+
+    #footer { background: #f9f9f9; padding: 30px 20px; text-align: center; border-top: 1px solid #eee; }
+    #footer img { height: 60px; margin-bottom: 12px; }
+    #footer p { margin: 0; font-size: 13px; color: #777; }
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <img src="https://cdn.imweb.me/thumbnail/20251128/b7491b79114f2.png" alt="옹달샘 로고">
+  <h2>모두를 위한 옹달샘 지도</h2>
+</div>
+
+<div id="main-wrapper">
+  <div id="map"></div>
+  <div class="form-container">
+    <div class="search-box">
+      <input type="text" id="keyword" placeholder="장소명 검색" onkeypress="if(event.keyCode==13) { searchPlaces(); return false; }" style="margin-bottom:0;">
+      <button id="searchBtn" onclick="searchPlaces()">검색</button>
+    </div>
+    <ul id="searchList"></ul>
+
+    <input type="text" id="placeName" placeholder="장소 이름 (필수) *">
+    <input type="text" id="address" placeholder="주소 (자동 입력)" readonly>
+    <input type="hidden" id="lat"><input type="hidden" id="lng">
+
+    <div style="display: flex; gap: 8px;">
+      <select id="placeType">
+        <option value="">장소 유형 *</option>
+        <option value="카페">카페</option><option value="식당">식당</option><option value="공공기관">공공기관</option><option value="기타">기타</option>
+      </select>
+      <select id="waterType">
+        <option value="">물 제공 방식 *</option>
+        <option value="물병 비치">물병 비치</option><option value="직원 문의">직원 문의</option><option value="정수기">정수기</option><option value="음수대">음수대</option>
+      </select>
+    </div>
+    <textarea id="memo" rows="2" placeholder="추가 메모 (예: 텀블러 지참 시 할인)"></textarea>
+    <button id="submitBtn" onclick="sendReport()">제보하기</button>
+  </div>
+</div>
+
+<div id="footer">
+  <img src="https://cdn.imweb.me/thumbnail/20240318/32f45df1c6e8a.png" alt="여성환경연대 로고">
+  <p>© 여성환경연대 All rights reserved.</p>
+</div>
+
+<script>
+  var map, ps, geocoder, tempMarker, infowindow;
+  // ⚠️ 2. 본인의 GAS 웹앱 URL 입력
+  const GAS_URL = "https://script.google.com/macros/s/AKfycbx7_zTlamIhzCHU1_e0B95T3PsITQ0Nw4LmS6GmH8jM3eSKesVe54Knix9niMFWL_ItkA/exec"; 
+  const markerImg = new kakao.maps.MarkerImage("https://cdn.imweb.me/thumbnail/20251128/b7491b79114f2.png", new kakao.maps.Size(35, 35));
+
+  window.onload = function() {
+    var container = document.getElementById('map');
+    map = new kakao.maps.Map(container, { center: new kakao.maps.LatLng(37.5665, 126.9780), level: 4 });
+    ps = new kakao.maps.services.Places();
+    geocoder = new kakao.maps.services.Geocoder();
+    tempMarker = new kakao.maps.Marker({ image: markerImg });
+    infowindow = new kakao.maps.InfoWindow({ zIndex: 1 });
+
+    // 데스크탑 지도 크기 보정
+    setTimeout(function(){ map.relayout(); }, 100);
+
+    fetch(GAS_URL).then(res => res.json()).then(locations => {
+      locations.forEach(loc => {
+        var m = new kakao.maps.Marker({ map: map, position: new kakao.maps.LatLng(loc.lat, loc.lng), image: markerImg });
+        kakao.maps.event.addListener(m, 'click', function() {
+          infowindow.setContent(`<div style="padding:15px;font-size:13px;line-height:1.4;"><b>${loc.name}</b><br><span style="color:#1DA1D2">${loc.waterType}</span></div>`);
+          infowindow.open(map, m);
+        });
+      });
     });
+
+    kakao.maps.event.addListener(map, 'click', function(e) {
+      displaySelectedPlace(e.latLng.getLat(), e.latLng.getLng(), "");
+    });
+  };
+
+  function searchPlaces() {
+    var keyword = document.getElementById('keyword').value;
+    if (!keyword) return alert('검색어를 입력하세요!');
+    ps.keywordSearch(keyword, (data, status) => {
+      var listEl = document.getElementById('searchList');
+      listEl.innerHTML = "";
+      if (status === kakao.maps.services.Status.OK) {
+        listEl.style.display = "block";
+        data.forEach(place => {
+          var li = document.createElement('li');
+          li.innerHTML = `<b>${place.place_name}</b><br><small style="color:#888">${place.address_name}</small>`;
+          li.onclick = () => {
+            document.getElementById('placeName').value = place.place_name;
+            document.getElementById('address').value = place.address_name;
+            displaySelectedPlace(place.y, place.x, place.place_name);
+            listEl.style.display = "none";
+          };
+          listEl.appendChild(li);
+        });
+      } else { alert('결과가 없습니다.'); }
+    });
+  }
+
+  function displaySelectedPlace(lat, lng, name) {
+    var loc = new kakao.maps.LatLng(lat, lng);
+    document.getElementById('lat').value = lat;
+    document.getElementById('lng').value = lng;
+    tempMarker.setPosition(loc); tempMarker.setMap(map); map.setCenter(loc);
+    if(!name) {
+      geocoder.coord2Address(lng, lat, (result, status) => {
+        if (status === kakao.maps.services.Status.OK) {
+          document.getElementById('address').value = result[0].address.address_name;
+        }
+      });
+    }
+  }
+
+  function sendReport() {
+    const submitBtn = document.getElementById('submitBtn');
+    if(!document.getElementById('placeName').value || !document.getElementById('lat').value) {
+      alert("장소를 선택하고 이름을 입력해주세요!");
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.innerText = "제보 전송 중...";
+
+    const data = {
+      name: document.getElementById('placeName').value,
+      address: document.getElementById('address').value,
+      lat: document.getElementById('lat').value,
+      lng: document.getElementById('lng').value,
+      placeType: document.getElementById('placeType').value,
+      waterType: document.getElementById('waterType').value,
+      memo: document.getElementById('memo').value
+    };
+
+    fetch(GAS_URL, { method: "POST", body: JSON.stringify(data) })
+    .then(() => { alert("제보가 성공적으로 접수되었습니다!"); location.reload(); })
+    .catch(() => { alert("오류 발생!"); submitBtn.disabled = false; submitBtn.innerText = "제보하기"; });
   }
 </script>
 </body>
