@@ -25,20 +25,29 @@
 </div>
 
 <script>
-  // 지도를 띄우는 아주 기본적인 코드
+  var map;
+  const GAS_URL = "https://script.google.com/macros/s/AKfycbx7_zTlamIhzCHU1_e0B95T3PsITQ0Nw4LmS6GmH8jM3eSKesVe54Knix9niMFWL_ItkA/exec"; 
+
   window.onload = function() {
     var container = document.getElementById('map');
-    var options = {
-      center: new kakao.maps.LatLng(37.5665, 126.9780), // 서울 시청 기준
+    map = new kakao.maps.Map(container, {
+      center: new kakao.maps.LatLng(37.5665, 126.9780),
       level: 4
-    };
-    var map = new kakao.maps.Map(container, options);
-    
-    // 마커 하나 찍어보기
-    var marker = new kakao.maps.Marker({
-      position: new kakao.maps.LatLng(37.5665, 126.9780),
-      map: map
     });
+
+    // 마법의 문장: GAS에서 데이터를 가져와서 마커를 찍어라!
+    fetch(GAS_URL)
+      .then(response => response.json())
+      .then(locations => {
+        locations.forEach(loc => {
+          var marker = new kakao.maps.Marker({
+            map: map,
+            position: new kakao.maps.LatLng(loc.lat, loc.lng)
+          });
+          // 마커 클릭 시 정보창 띄우기 로직 추가...
+          console.log("데이터 불러오기 성공:", loc.name);
+        });
+      });
   };
 </script>
 
