@@ -231,24 +231,47 @@
   // 제보하기 기능
   function sendReport() {
     const btn = document.getElementById('submitBtn');
-    if(!document.getElementById('placeName').value || !document.getElementById('lat').value) return alert("장소를 검색하여 선택해주세요.");
+    const placeName = document.getElementById('placeName').value;
+    const lat = document.getElementById('lat').value;
+    const placeType = document.getElementById('placeType').value; // 장소 유형 값
+    const waterType = document.getElementById('waterType').value; // 제공 유형 값
 
-    btn.disabled = true; btn.innerText = "제보 전송 중...";
+    // 1. 필수 입력값 체크
+    if(!placeName || !lat) {
+      return alert("장소를 검색하여 목록에서 선택해주세요.");
+    }
+    if(!placeType) {
+      return alert("장소 유형을 선택해주세요.");
+    }
+    if(!waterType) {
+      return alert("제공 유형을 선택해주세요.");
+    }
+
+    // 2. 모든 값이 있을 때만 전송 시작
+    btn.disabled = true; 
+    btn.innerText = "제보 전송 중...";
 
     const payload = {
       action: "new", 
-      장소명: document.getElementById('placeName').value,
+      장소명: placeName,
       주소: document.getElementById('address').value,
-      위도: document.getElementById('lat').value,
+      위도: lat,
       경도: document.getElementById('lng').value,
-      장소유형: document.getElementById('placeType').value,
-      제공유형: document.getElementById('waterType').value,
+      장소유형: placeType,
+      제공유형: waterType,
       메모: document.getElementById('memo').value
     };
 
     fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) })
-    .then(() => { alert("제보가 완료되었습니다! \n관리자 승인 후 지도에 나타납니다."); location.reload(); })
-    .catch(() => { alert("전송 실패"); btn.disabled = false; btn.innerText = "제보하기"; });
+    .then(() => { 
+      alert("제보가 완료되었습니다! \n관리자 승인 후 지도에 나타납니다."); 
+      location.reload(); 
+    })
+    .catch(() => { 
+      alert("전송 실패"); 
+      btn.disabled = false; 
+      btn.innerText = "제보하기"; 
+    });
   }
 
   // 수정 요청 기능
