@@ -75,7 +75,7 @@
   <div id="map"></div>
   
   <div class="filter-wrapper">
-    <button class="filter-toggle-btn" onclick="toggleFilter()">🔍 필터 (열기/닫기)</button>
+    <button class="filter-toggle-btn" onclick="toggleFilter()">🔍 유형별 보기</button>
     <div id="filter-content" class="filter-content">
       <div class="filter-group">
         <button class="filter-item active" id="filter-all" onclick="clearFilter()">🔄 전체 초기화</button>
@@ -92,13 +92,13 @@
     </div>
     <ul id="searchList" style="list-style:none; padding:0; display:none; border:1px solid #e2e8f0; border-radius:12px; margin-bottom:12px; max-height:150px; overflow-y:auto;"></ul>
     
-    <input type="text" id="placeName" placeholder="장소명 (필수)">
-    <input type="text" id="address" placeholder="주소 (클릭/검색 시 자동입력)" readonly>
+    <input type="text" id="placeName" placeholder="장소명">
+    <input type="text" id="address" placeholder="주소(검색/클릭 시 자동입력)" readonly>
     <input type="hidden" id="lat"><input type="hidden" id="lng">
     
     <div style="display: flex; gap: 8px;">
-      <select id="placeType"><option value="">장소 유형 (필수)</option></select>
-      <select id="waterType"><option value="">제공 유형 (필수)</option></select>
+      <select id="placeType"><option value="">장소 유형</option></select>
+      <select id="waterType"><option value="">제공 유형</option></select>
     </div>
     <textarea id="memo" placeholder="추가 메모를 입력해주세요."></textarea>
     
