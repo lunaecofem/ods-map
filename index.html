@@ -7,39 +7,43 @@
   <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=27f59fa5635cc98fba48941abe374192&libraries=services"></script>
   <style>
     @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-    body { margin: 0; padding: 0; font-family: 'Pretendard', sans-serif; background: #f8fbfe; color: #333; display: flex; flex-direction: column; min-height: 100vh; }
+    body { margin: 0; padding: 0; font-family: 'Pretendard', sans-serif; background: #f8fbfe; color: #333; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
     
-    #header { background: white; padding: 12px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 3px solid #1DA1D2; height: 60px; box-sizing: border-box; }
+    #header { background: white; padding: 0 20px; display: flex; align-items: center; gap: 12px; border-bottom: 2px solid #1DA1D2; height: 60px; flex-shrink: 0; }
     #header img { height: 35px; } 
     #header h2 { margin: 0; font-size: 18px; font-weight: 800; color: #1DA1D2; }
     
-    #main-wrapper { display: flex; flex-direction: column; flex: 1; }
-    #map { height: 50vh; width: 100%; border-bottom: 1px solid #e0e0e0; background: #eee; }
-    .form-container { padding: 25px 20px; background: white; flex: 1; box-sizing: border-box; }
+    #main-wrapper { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+    #map { height: 45%; width: 100%; background: #eee; } /* 기본 높이 설정 */
+    .form-container { padding: 20px; background: white; flex: 1; overflow-y: auto; box-sizing: border-box; border-top: 1px solid #eee; }
     
     @media (min-width: 768px) {
-      #main-wrapper { flex-direction: row; height: calc(100vh - 180px); } 
-      #map { flex: 1.6; height: 100% !important; border-bottom: none; border-right: 1px solid #e0e0e0; }
-      .form-container { flex: 1; overflow-y: auto; max-width: 420px; }
+      #main-wrapper { flex-direction: row; } 
+      #map { flex: 1.6; height: 100% !important; border-top: none; border-right: 1px solid #eee; }
+      .form-container { flex: 1; max-width: 400px; }
     }
 
-    .search-box { display: flex; gap: 4px; margin-bottom: 12px; height: 48px; }
-    input, select, textarea { width: 100%; margin-bottom: 12px; padding: 0 12px; border: 1.5px solid #e3eef6; border-radius: 10px; box-sizing: border-box; font-size: 14px; font-family: inherit; height: 48px; outline: none; }
-    input:focus { border-color: #1DA1D2; }
-    textarea { height: auto !important; padding: 12px; }
+    .search-box { display: flex; gap: 4px; margin-bottom: 12px; }
+    input, select, textarea { width: 100%; margin-bottom: 10px; padding: 0 12px; border: 1.5px solid #e3eef6; border-radius: 10px; box-sizing: border-box; font-size: 14px; height: 45px; outline: none; }
+    textarea { height: 80px !important; padding: 12px; }
     
-    #searchBtn { width: 75px; height: 48px; background: #1DA1D2; color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px; flex-shrink: 0; }
+    #searchBtn { width: 70px; height: 45px; background: #1DA1D2; color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; flex-shrink: 0; }
+    #submitBtn { width: 100%; padding: 15px; background: #1DA1D2; color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 16px; }
+    #submitBtn:disabled { background: #ccc !important; }
     
-    #submitBtn { width: 100%; padding: 16px; background: #1DA1D2; color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 16px; margin-top: 5px; }
-    #submitBtn:disabled { background: #ccc !important; cursor: not-allowed; }
-    
-    #searchList { list-style: none; padding: 0; margin: -8px 0 15px 0; max-height: 200px; overflow-y: auto; border: 1px solid #e3eef6; border-radius: 10px; display: none; background: white; }
-    #searchList li { padding: 12px; border-bottom: 1px solid #f0f0f0; cursor: pointer; font-size: 13px; line-height: 1.4; }
-    #searchList li:hover { background: #eaf7fd; }
+    #searchList { list-style: none; padding: 0; margin: -5px 0 10px 0; max-height: 150px; overflow-y: auto; border: 1px solid #e3eef6; border-radius: 10px; display: none; background: white; }
+    #searchList li { padding: 10px; border-bottom: 1px solid #f0f0f0; cursor: pointer; font-size: 13px; }
 
-    #footer { background: #f9f9f9; padding: 30px 20px; text-align: center; border-top: 1px solid #eee; }
-    #footer img { height: 60px; margin-bottom: 12px; }
-    #footer p { margin: 0; font-size: 13px; color: #777; }
+    /* 정보창 스타일 */
+    .iw-container { padding: 15px; min-width: 200px; font-size: 13px; line-height: 1.5; }
+    .iw-title { font-size: 15px; font-weight: 800; color: #1DA1D2; margin-bottom: 5px; display: block; }
+    .iw-tag { display: inline-block; padding: 2px 6px; background: #eaf7fd; color: #168db9; border-radius: 4px; font-size: 11px; margin-right: 4px; }
+    .iw-memo { color: #666; margin-top: 8px; border-top: 1px dashed #eee; padding-top: 8px; }
+    .report-btn { margin-top: 10px; width: 100%; padding: 6px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 5px; font-size: 11px; cursor: pointer; color: #888; }
+
+    #footer { background: white; padding: 20px; text-align: center; border-top: 1px solid #eee; flex-shrink: 0; }
+    #footer img { height: 60px; margin-bottom: 8px; }
+    #footer p { margin: 0; font-size: 12px; color: #999; }
   </style>
 </head>
 <body>
@@ -53,13 +57,13 @@
   <div id="map"></div>
   <div class="form-container">
     <div class="search-box">
-      <input type="text" id="keyword" placeholder="장소명 검색" onkeypress="if(event.keyCode==13) { searchPlaces(); return false; }" style="margin-bottom:0;">
+      <input type="text" id="keyword" placeholder="장소명 검색" onkeypress="if(event.keyCode==13) { searchPlaces(); return false; }">
       <button id="searchBtn" onclick="searchPlaces()">검색</button>
     </div>
     <ul id="searchList"></ul>
 
     <input type="text" id="placeName" placeholder="장소명">
-    <input type="text" id="address" placeholder="주소" readonly>
+    <input type="text" id="address" placeholder="도로명 주소" readonly>
     <input type="hidden" id="lat"><input type="hidden" id="lng">
 
     <div style="display: flex; gap: 8px;">
@@ -68,11 +72,11 @@
         <option value="카페">카페</option><option value="식당">식당</option><option value="공공기관">공공기관</option><option value="기타">기타</option>
       </select>
       <select id="waterType">
-        <option value="">물 제공 방식</option>
+        <option value="">제공 방식</option>
         <option value="물병 비치">물병 비치</option><option value="직원 문의">직원 문의</option><option value="정수기">정수기</option><option value="음수대">음수대</option>
       </select>
     </div>
-    <textarea id="memo" rows="2" placeholder="추가 메모"></textarea>
+    <textarea id="memo" placeholder="추가 메모를 입력해주세요."></textarea>
     <button id="submitBtn" onclick="sendReport()">제보하기</button>
   </div>
 </div>
@@ -84,56 +88,52 @@
 
 <script>
   var map, ps, tempMarker, infowindow;
-  // ⚠️ 2. 본인의 GAS 웹앱 URL 입력
+  // ⚠️ 본인의 GAS 웹앱 URL 입력
   const GAS_URL = "https://script.google.com/macros/s/AKfycbx7_zTlamIhzCHU1_e0B95T3PsITQ0Nw4LmS6GmH8jM3eSKesVe54Knix9niMFWL_ItkA/exec"; 
   const markerImg = new kakao.maps.MarkerImage("https://cdn.imweb.me/thumbnail/20251128/b7491b79114f2.png", new kakao.maps.Size(35, 35));
 
   window.onload = function() {
     var container = document.getElementById('map');
-    // 기본 위치 (서울시청)
-    var defaultLoc = new kakao.maps.LatLng(37.5665, 126.9780);
-    map = new kakao.maps.Map(container, { center: defaultLoc, level: 4 });
+    map = new kakao.maps.Map(container, { center: new kakao.maps.LatLng(37.5665, 126.9780), level: 4 });
     ps = new kakao.maps.services.Places();
     tempMarker = new kakao.maps.Marker({ image: markerImg });
-    infowindow = new kakao.maps.InfoWindow({ zIndex: 1 });
+    infowindow = new kakao.maps.InfoWindow({ zIndex: 1, removable: true });
 
-    // ✅ 내 위치 찾기 기능
+    // 내 위치 중심 설정
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(function(position) {
-        var lat = position.coords.latitude;
-        var lon = position.coords.longitude;
-        var loc = new kakao.maps.LatLng(lat, lon);
-        map.setCenter(loc);
+      navigator.geolocation.getCurrentPosition(function(pos) {
+        map.setCenter(new kakao.maps.LatLng(pos.coords.latitude, pos.coords.longitude));
       });
     }
 
-    // 데스크탑 지도 크기 보정
-    setTimeout(function(){ map.relayout(); }, 200);
+    // 데스크탑 화면 깨짐 방지
+    setTimeout(() => { map.relayout(); }, 500);
 
-    // 기존 데이터 로드
-    fetch(GAS_URL).then(res => res.json()).then(locations => {
-      locations.forEach(loc => {
-        var m = new kakao.maps.Marker({ map: map, position: new kakao.maps.LatLng(loc.lat, loc.lng), image: markerImg });
-        kakao.maps.event.addListener(m, 'click', function() {
-          infowindow.setContent(`<div style="padding:15px;font-size:13px;"><b>${loc.name}</b><br><span style="color:#1DA1D2">${loc.waterType}</span></div>`);
-          infowindow.open(map, m);
-        });
+    // 데이터 로드 (승인상태 확인)
+    fetch(GAS_URL).then(res => res.json()).then(data => {
+      data.forEach(loc => {
+        // ✅ 승인상태가 '승인'인 것만 표시
+        if (loc.approvalStatus === "승인" || loc.승인상태 === "승인") {
+          var m = new kakao.maps.Marker({ map: map, position: new kakao.maps.LatLng(loc.lat, loc.lng), image: markerImg });
+          kakao.maps.event.addListener(m, 'click', function() {
+            var content = `
+              <div class="iw-container">
+                <span class="iw-title">${loc.name}</span>
+                <span class="iw-tag">${loc.placeType}</span><span class="iw-tag">${loc.waterType}</span>
+                <div class="iw-memo">${loc.memo || '등록된 메모가 없습니다.'}</div>
+                <button class="report-btn" onclick="openModify('${loc.id}', '${loc.name}')">정보 수정/삭제 신고</button>
+              </div>`;
+            infowindow.setContent(content);
+            infowindow.open(map, m);
+          });
+        }
       });
-    });
-
-    // 지도 클릭 시 마커만 이동 (주소 검색 제외)
-    kakao.maps.event.addListener(map, 'click', function(e) {
-      var latlng = e.latLng;
-      document.getElementById('lat').value = latlng.getLat();
-      document.getElementById('lng').value = latlng.getLng();
-      tempMarker.setPosition(latlng);
-      tempMarker.setMap(map);
     });
   };
 
   function searchPlaces() {
     var keyword = document.getElementById('keyword').value;
-    if (!keyword) return alert('검색어를 입력하세요!');
+    if (!keyword) return alert('장소명을 입력하세요.');
     ps.keywordSearch(keyword, (data, status) => {
       var listEl = document.getElementById('searchList');
       listEl.innerHTML = "";
@@ -141,10 +141,12 @@
         listEl.style.display = "block";
         data.forEach(place => {
           var li = document.createElement('li');
-          li.innerHTML = `<b>${place.place_name}</b><br><small style="color:#888">${place.address_name}</small>`;
+          // ✅ 도로명 주소(road_address_name) 우선 사용
+          var addr = place.road_address_name || place.address_name;
+          li.innerHTML = `<b>${place.place_name}</b><br><small>${addr}</small>`;
           li.onclick = () => {
             document.getElementById('placeName').value = place.place_name;
-            document.getElementById('address').value = place.address_name;
+            document.getElementById('address').value = addr;
             document.getElementById('lat').value = place.y;
             document.getElementById('lng').value = place.x;
             var loc = new kakao.maps.LatLng(place.y, place.x);
@@ -153,33 +155,48 @@
           };
           listEl.appendChild(li);
         });
-      } else { alert('결과가 없습니다.'); }
+      } else { alert('검색 결과가 없습니다.'); }
     });
   }
 
   function sendReport() {
-    const submitBtn = document.getElementById('submitBtn');
-    if(!document.getElementById('placeName').value || !document.getElementById('lat').value) {
-      alert("장소를 검색하여 선택해주세요!");
-      return;
-    }
+    const btn = document.getElementById('submitBtn');
+    const name = document.getElementById('placeName').value;
+    if(!name || !document.getElementById('lat').value) return alert("장소를 검색하여 선택해주세요.");
 
-    submitBtn.disabled = true;
-    submitBtn.innerText = "제보 전송 중...";
+    btn.disabled = true; btn.innerText = "전송 중...";
 
-    const data = {
-      name: document.getElementById('placeName').value,
+    const payload = {
+      type: "NEW_REPORT", // 신규 제보 구분용
+      name: name,
       address: document.getElementById('address').value,
       lat: document.getElementById('lat').value,
       lng: document.getElementById('lng').value,
       placeType: document.getElementById('placeType').value,
       waterType: document.getElementById('waterType').value,
-      memo: document.getElementById('memo').value
+      memo: document.getElementById('memo').value,
+      approvalStatus: "대기" // 기본값 설정
     };
 
-    fetch(GAS_URL, { method: "POST", body: JSON.stringify(data) })
-    .then(() => { alert("제보 완료!"); location.reload(); })
-    .catch(() => { alert("오류 발생!"); submitBtn.disabled = false; submitBtn.innerText = "제보하기"; });
+    fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) })
+    .then(() => { alert("제보 완료! 관리자 승인 후 지도에 나타납니다."); location.reload(); })
+    .catch(() => { alert("오류 발생"); btn.disabled = false; btn.innerText = "제보하기"; });
+  }
+
+  // 수정 요청 기능
+  function openModify(id, name) {
+    var reason = prompt(`[${name}] 수정 또는 삭제가 필요한 이유를 적어주세요.`);
+    if(!reason) return;
+    
+    fetch(GAS_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        type: "MODIFY_REPORT",
+        targetId: id,
+        targetName: name,
+        memo: reason
+      })
+    }).then(() => alert("신고가 접수되었습니다."));
   }
 </script>
 </body>
