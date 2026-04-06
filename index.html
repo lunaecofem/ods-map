@@ -14,28 +14,27 @@
     #header h2 { margin: 0; font-size: 18px; font-weight: 800; color: #1DA1D2; }
     
     #main-wrapper { display: flex; flex-direction: column; flex: 1; }
-    #map { height: 45vh; width: 100%; border-bottom: 1px solid #e0e0e0; background: #eee; }
+    #map { height: 50vh; width: 100%; border-bottom: 1px solid #e0e0e0; background: #eee; }
     .form-container { padding: 25px 20px; background: white; flex: 1; box-sizing: border-box; }
     
     @media (min-width: 768px) {
-      #main-wrapper { flex-direction: row; height: calc(100vh - 185px); } 
+      #main-wrapper { flex-direction: row; height: calc(100vh - 180px); } 
       #map { flex: 1.6; height: 100% !important; border-bottom: none; border-right: 1px solid #e0e0e0; }
       .form-container { flex: 1; overflow-y: auto; max-width: 420px; }
     }
 
-    /* ✅ 검색창 & 버튼 높이 정렬 수정 */
-    .search-box { display: flex; gap: 6px; margin-bottom: 12px; align-items: stretch; }
-    input, select, textarea { width: 100%; margin-bottom: 12px; padding: 0 12px; border: 1.5px solid #e3eef6; border-radius: 10px; box-sizing: border-box; font-size: 14px; font-family: inherit; height: 45px; }
+    .search-box { display: flex; gap: 4px; margin-bottom: 12px; height: 48px; }
+    input, select, textarea { width: 100%; margin-bottom: 12px; padding: 0 12px; border: 1.5px solid #e3eef6; border-radius: 10px; box-sizing: border-box; font-size: 14px; font-family: inherit; height: 48px; outline: none; }
+    input:focus { border-color: #1DA1D2; }
     textarea { height: auto !important; padding: 12px; }
     
-    /* 검색 버튼 디자인 최적화 */
-    #searchBtn { width: 70px; height: 45px; background: #1DA1D2; color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px; flex-shrink: 0; }
+    #searchBtn { width: 75px; height: 48px; background: #1DA1D2; color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px; flex-shrink: 0; }
     
     #submitBtn { width: 100%; padding: 16px; background: #1DA1D2; color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 16px; margin-top: 5px; }
     #submitBtn:disabled { background: #ccc !important; cursor: not-allowed; }
     
-    #searchList { list-style: none; padding: 0; margin: -5px 0 15px 0; max-height: 180px; overflow-y: auto; border: 1px solid #e3eef6; border-radius: 10px; display: none; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-    #searchList li { padding: 12px; border-bottom: 1px solid #f0f0f0; cursor: pointer; font-size: 13px; }
+    #searchList { list-style: none; padding: 0; margin: -8px 0 15px 0; max-height: 200px; overflow-y: auto; border: 1px solid #e3eef6; border-radius: 10px; display: none; background: white; }
+    #searchList li { padding: 12px; border-bottom: 1px solid #f0f0f0; cursor: pointer; font-size: 13px; line-height: 1.4; }
     #searchList li:hover { background: #eaf7fd; }
 
     #footer { background: #f9f9f9; padding: 30px 20px; text-align: center; border-top: 1px solid #eee; }
@@ -59,21 +58,21 @@
     </div>
     <ul id="searchList"></ul>
 
-    <input type="text" id="placeName" placeholder="장소 이름 (필수) *">
-    <input type="text" id="address" placeholder="주소 (자동 입력)" readonly>
+    <input type="text" id="placeName" placeholder="장소명">
+    <input type="text" id="address" placeholder="주소" readonly>
     <input type="hidden" id="lat"><input type="hidden" id="lng">
 
     <div style="display: flex; gap: 8px;">
       <select id="placeType">
-        <option value="">장소 유형 *</option>
-        <option value="카페">카페</option><option value="식당">식당</option><option value="공공기관">공공기관</option><option value="음수대">음수대</option><option value="기타">기타</option>
+        <option value="">장소 유형</option>
+        <option value="카페">카페</option><option value="식당">식당</option><option value="공공기관">공공기관</option><option value="기타">기타</option>
       </select>
       <select id="waterType">
-        <option value="">물 제공 방식 *</option>
+        <option value="">물 제공 방식</option>
         <option value="물병 비치">물병 비치</option><option value="직원 문의">직원 문의</option><option value="정수기">정수기</option><option value="음수대">음수대</option>
       </select>
     </div>
-    <textarea id="memo" rows="2" placeholder="추가 메모 (예: 텀블러 지참 시 할인)"></textarea>
+    <textarea id="memo" rows="2" placeholder="추가 메모"></textarea>
     <button id="submitBtn" onclick="sendReport()">제보하기</button>
   </div>
 </div>
@@ -84,34 +83,51 @@
 </div>
 
 <script>
-  var map, ps, geocoder, tempMarker, infowindow;
+  var map, ps, tempMarker, infowindow;
   // ⚠️ 2. 본인의 GAS 웹앱 URL 입력
   const GAS_URL = "https://script.google.com/macros/s/AKfycbx7_zTlamIhzCHU1_e0B95T3PsITQ0Nw4LmS6GmH8jM3eSKesVe54Knix9niMFWL_ItkA/exec"; 
   const markerImg = new kakao.maps.MarkerImage("https://cdn.imweb.me/thumbnail/20251128/b7491b79114f2.png", new kakao.maps.Size(35, 35));
 
   window.onload = function() {
     var container = document.getElementById('map');
-    map = new kakao.maps.Map(container, { center: new kakao.maps.LatLng(37.5665, 126.9780), level: 4 });
+    // 기본 위치 (서울시청)
+    var defaultLoc = new kakao.maps.LatLng(37.5665, 126.9780);
+    map = new kakao.maps.Map(container, { center: defaultLoc, level: 4 });
     ps = new kakao.maps.services.Places();
-    geocoder = new kakao.maps.services.Geocoder();
     tempMarker = new kakao.maps.Marker({ image: markerImg });
     infowindow = new kakao.maps.InfoWindow({ zIndex: 1 });
 
-    // 데스크탑 지도 크기 보정
-    setTimeout(function(){ map.relayout(); }, 100);
+    // ✅ 내 위치 찾기 기능
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(function(position) {
+        var lat = position.coords.latitude;
+        var lon = position.coords.longitude;
+        var loc = new kakao.maps.LatLng(lat, lon);
+        map.setCenter(loc);
+      });
+    }
 
+    // 데스크탑 지도 크기 보정
+    setTimeout(function(){ map.relayout(); }, 200);
+
+    // 기존 데이터 로드
     fetch(GAS_URL).then(res => res.json()).then(locations => {
       locations.forEach(loc => {
         var m = new kakao.maps.Marker({ map: map, position: new kakao.maps.LatLng(loc.lat, loc.lng), image: markerImg });
         kakao.maps.event.addListener(m, 'click', function() {
-          infowindow.setContent(`<div style="padding:15px;font-size:13px;line-height:1.4;"><b>${loc.name}</b><br><span style="color:#1DA1D2">${loc.waterType}</span></div>`);
+          infowindow.setContent(`<div style="padding:15px;font-size:13px;"><b>${loc.name}</b><br><span style="color:#1DA1D2">${loc.waterType}</span></div>`);
           infowindow.open(map, m);
         });
       });
     });
 
+    // 지도 클릭 시 마커만 이동 (주소 검색 제외)
     kakao.maps.event.addListener(map, 'click', function(e) {
-      displaySelectedPlace(e.latLng.getLat(), e.latLng.getLng(), "");
+      var latlng = e.latLng;
+      document.getElementById('lat').value = latlng.getLat();
+      document.getElementById('lng').value = latlng.getLng();
+      tempMarker.setPosition(latlng);
+      tempMarker.setMap(map);
     });
   };
 
@@ -129,7 +145,10 @@
           li.onclick = () => {
             document.getElementById('placeName').value = place.place_name;
             document.getElementById('address').value = place.address_name;
-            displaySelectedPlace(place.y, place.x, place.place_name);
+            document.getElementById('lat').value = place.y;
+            document.getElementById('lng').value = place.x;
+            var loc = new kakao.maps.LatLng(place.y, place.x);
+            tempMarker.setPosition(loc); tempMarker.setMap(map); map.setCenter(loc);
             listEl.style.display = "none";
           };
           listEl.appendChild(li);
@@ -138,24 +157,10 @@
     });
   }
 
-  function displaySelectedPlace(lat, lng, name) {
-    var loc = new kakao.maps.LatLng(lat, lng);
-    document.getElementById('lat').value = lat;
-    document.getElementById('lng').value = lng;
-    tempMarker.setPosition(loc); tempMarker.setMap(map); map.setCenter(loc);
-    if(!name) {
-      geocoder.coord2Address(lng, lat, (result, status) => {
-        if (status === kakao.maps.services.Status.OK) {
-          document.getElementById('address').value = result[0].address.address_name;
-        }
-      });
-    }
-  }
-
   function sendReport() {
     const submitBtn = document.getElementById('submitBtn');
     if(!document.getElementById('placeName').value || !document.getElementById('lat').value) {
-      alert("장소를 선택하고 이름을 입력해주세요!");
+      alert("장소를 검색하여 선택해주세요!");
       return;
     }
 
@@ -173,7 +178,7 @@
     };
 
     fetch(GAS_URL, { method: "POST", body: JSON.stringify(data) })
-    .then(() => { alert("제보가 성공적으로 접수되었습니다!"); location.reload(); })
+    .then(() => { alert("제보 완료!"); location.reload(); })
     .catch(() => { alert("오류 발생!"); submitBtn.disabled = false; submitBtn.innerText = "제보하기"; });
   }
 </script>
