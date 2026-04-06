@@ -50,24 +50,25 @@
     #searchList { list-style: none; padding: 0; margin: -8px 0 15px 0; max-height: 180px; overflow-y: auto; border: 1.5px solid #e2e8f0; border-radius: 12px; display: none; background: white; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
     #searchList li { padding: 12px 15px; border-bottom: 1px solid #f7fafc; cursor: pointer; font-size: 14px; }
     #searchList li:hover { background: #f0f9ff; color: #1DA1D2; }
-
-    /* 정보창(마커 클릭) 디자인 강화 */
-    /* 정보창 디자인 (유연한 너비 적용) */
+  
+    /* 인포윈도우 스타일 - 반드시 !important를 붙여주세요 */
     .iw-container { 
-      padding: 18px; 
-      min-width: 180px;  /* 최소 너비 */
-      max-width: 280px;  /* 최대 너비: 너무 길어지면 줄바꿈 시작 */
-      word-break: break-all; /* 긴 단어도 박스 안에서 줄바꿈 */
+      padding: 15px !important; 
+      width: auto !important; 
+      min-width: 200px !important; 
+      max-width: 250px !important; /* 최대 너비 제한 */
+      white-space: normal !important; /* 자동 줄바꿈 강제 적용 */
+      word-wrap: break-word !important; 
     }
     
     .iw-title { 
-      font-size: 19px; 
-      font-weight: 800; 
-      color: #1DA1D2; 
-      margin-bottom: 10px; 
-      display: block; 
-      line-height: 1.3; /* 줄바꿈 시 간격 조절 */
-      letter-spacing: -0.5px;
+      font-size: 19px !important; 
+      font-weight: 800 !important; 
+      color: #1DA1D2 !important; 
+      line-height: 1.3 !important; 
+      margin-bottom: 8px !important;
+      display: block !important;
+      width: 100% !important; /* 부모 너비에 맞춤 */
     }
     .iw-tag-group { margin-bottom: 10px; display: flex; gap: 5px; flex-wrap: wrap; }
     .iw-tag { display: inline-block; padding: 4px 10px; background: #f0f9ff; color: #1DA1D2; border: 1px solid #bae6fd; border-radius: 8px; font-size: 13px; font-weight: 600; }
@@ -127,48 +128,63 @@
   // ✅ 마커 크기 확대 (기존 35 -> 45)
   const markerImg = new kakao.maps.MarkerImage("https://cdn.imweb.me/thumbnail/20251128/b7491b79114f2.png", new kakao.maps.Size(45, 45));
 
+    // 전역 변수로 미리 선언
+  var map, ps, tempMarker, infowindow;
+  var locationsData = []; // 데이터를 담아둘 배열
+  
+  // 지도가 그려지기 전이라도 데이터를 미리 가져오기 시작함
+  fetch(GAS_URL)
+    .then(res => res.json())
+    .then(data => {
+      locationsData = data;
+      // 만약 지도가 이미 준비되었다면 바로 마커 그리기 실행
+      if(map) renderMarkers();
+    });
+  
   window.onload = function() {
     var container = document.getElementById('map');
     map = new kakao.maps.Map(container, { center: new kakao.maps.LatLng(37.5665, 126.9780), level: 4 });
     ps = new kakao.maps.services.Places();
     tempMarker = new kakao.maps.Marker({ image: markerImg });
-    infowindow = new kakao.maps.InfoWindow({ zIndex: 10, removable: true, disableAutoPan: false });
-
+    infowindow = new kakao.maps.InfoWindow({ zIndex: 10, removable: true });
+  
+    // 내 위치 잡기
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(function(pos) {
-        map.setCenter(new kakao.maps.LatLng(pos.coords.latitude, pos.coords.longitude));
-      });
+      navigator.geolocation.getCurrentPosition(pos => map.setCenter(new kakao.maps.LatLng(pos.coords.latitude, pos.coords.longitude)));
     }
-
-    setTimeout(() => { map.relayout(); }, 500);
-
-    fetch(GAS_URL).then(res => res.json()).then(data => {
-      data.forEach(loc => {
-        if (loc.승인상태 === "승인") {
-          var m = new kakao.maps.Marker({ 
-            map: map, 
-            position: new kakao.maps.LatLng(loc.위도, loc.경도), 
-            image: markerImg 
-          });
-          
-          kakao.maps.event.addListener(m, 'click', function() {
-            var content = `
-              <div class="iw-container">
-                <span class="iw-title">${loc.장소명}</span>
-                <div class="iw-tag-group">
-                  <span class="iw-tag">${loc.장소유형}</span>
-                  <span class="iw-tag">${loc.제공유형}</span>
-                </div>
-                <div class="iw-memo">${loc.메모 || '등록된 메모가 없습니다.'}</div>
-                <button class="report-btn" onclick="openModify('${loc.일련번호}', '${loc.장소명}')">정보 수정/삭제 신고</button>
-              </div>`;
-            infowindow.setContent(content);
-            infowindow.open(map, m);
-          });
-        }
-      });
-    });
+  
+    setTimeout(() => { map.relayout(); }, 300);
+  
+    // 데이터가 이미 도착해 있다면 마커 그리기
+    if(locationsData.length > 0) renderMarkers();
   };
+  
+  // 마커를 그리는 기능 분리 (더 빠름)
+  function renderMarkers() {
+    locationsData.forEach(loc => {
+      if (loc.승인상태 === "승인") {
+        var m = new kakao.maps.Marker({ 
+          map: map, 
+          position: new kakao.maps.LatLng(loc.위도, loc.경도), 
+          image: markerImg 
+        });
+        kakao.maps.event.addListener(m, 'click', function() {
+          var content = `
+            <div class="iw-container">
+              <span class="iw-title">${loc.장소명}</span>
+              <div class="iw-tag-group">
+                <span class="iw-tag">${loc.장소유형}</span>
+                <span class="iw-tag">${loc.제공유형}</span>
+              </div>
+              <div class="iw-memo">${loc.메모 || '등록된 메모가 없습니다.'}</div>
+              <button class="report-btn" onclick="openModify('${loc.일련번호}', '${loc.장소명}')">정보 수정/삭제 신고</button>
+            </div>`;
+          infowindow.setContent(content);
+          infowindow.open(map, m);
+        });
+      }
+    });
+  }
 
   function searchPlaces() {
     var keyword = document.getElementById('keyword').value;
