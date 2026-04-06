@@ -98,6 +98,7 @@
     infowindow = new kakao.maps.InfoWindow({ zIndex: 10, removable: true });
 
     // ✅ 지도 클릭 시 도로명 주소 우선 추출
+    // 지도 클릭 시 주소 추출 로직 보강 버전
     kakao.maps.event.addListener(map, 'click', function(e) {
       var latlng = e.latLng;
       tempMarker.setPosition(latlng);
@@ -107,8 +108,10 @@
       
       geocoder.coord2Address(latlng.getLng(), latlng.getLat(), function(result, status) {
         if (status === kakao.maps.services.Status.OK) {
-          // 📍 도로명 주소가 있으면 사용, 없으면 지번 주소 사용
-          var addr = result[0].road_address ? result[0].road_address.address_name : result[0].address.address_name;
+          // 📍 도로명 주소 정보가 존재하고, 그 안에 실제 주소 텍스트가 있는지 꼼꼼히 확인
+          var addr = (result[0].road_address && result[0].road_address.address_name) 
+                     ? result[0].road_address.address_name 
+                     : result[0].address.address_name;
           document.getElementById('address').value = addr;
         }
       });
