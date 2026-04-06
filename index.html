@@ -181,4 +181,79 @@
                 <span class="iw-tag">${loc.제공유형}</span>
               </div>
               <div class="iw-memo">${loc.메모 || '등록된 메모가 없습니다.'}</div>
-              <button class="report-btn" onclick="openModify('${loc.일련번호}', '${loc.장소명}')">정보 수정/삭제
+              <button class="report-btn" onclick="openModify('${loc.일련번호}', '${loc.장소명}')">정보 수정/삭제 신고</button>
+            </div>`;
+          infowindow.setContent(content);
+          infowindow.open(map, m);
+        });
+      }
+    });
+  }
+
+  function searchPlaces() {
+    var keyword = document.getElementById('keyword').value;
+    if (!keyword) return alert('장소명을 입력하세요.');
+    ps.keywordSearch(keyword, (data, status) => {
+      var listEl = document.getElementById('searchList');
+      listEl.innerHTML = "";
+      if (status === kakao.maps.services.Status.OK) {
+        listEl.style.display = "block";
+        data.forEach(place => {
+          var addr = place.road_address_name || place.address_name;
+          var li = document.createElement('li');
+          li.innerHTML = `<b>${place.place_name}</b><br><small style="color:#718096">${addr}</small>`;
+          li.onclick = () => {
+            document.getElementById('placeName').value = place.place_name;
+            document.getElementById('address').value = addr;
+            document.getElementById('lat').value = place.y;
+            document.getElementById('lng').value = place.x;
+            var loc = new kakao.maps.LatLng(place.y, place.x);
+            tempMarker.setPosition(loc); tempMarker.setMap(map); map.setCenter(loc);
+            listEl.style.display = "none";
+          };
+          listEl.appendChild(li);
+        });
+      } else { alert('검색 결과가 없습니다.'); }
+    });
+  }
+
+  function sendReport() {
+    const btn = document.getElementById('submitBtn');
+    const placeName = document.getElementById('placeName').value;
+    const lat = document.getElementById('lat').value;
+    const placeType = document.getElementById('placeType').value;
+    const waterType = document.getElementById('waterType').value;
+
+    if(!placeName || !lat) return alert("장소를 검색하거나 지도에서 위치를 클릭해주세요.");
+    if(!placeType) return alert("장소 유형을 선택해주세요.");
+    if(!waterType) return alert("제공 유형을 선택해주세요.");
+
+    btn.disabled = true; btn.innerText = "제보 전송 중...";
+
+    const payload = {
+      action: "new", 
+      장소명: placeName,
+      주소: document.getElementById('address').value,
+      위도: lat,
+      경도: document.getElementById('lng').value,
+      장소유형: placeType,
+      제공유형: waterType,
+      메모: document.getElementById('memo').value
+    };
+
+    fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) })
+    .then(() => { alert("제보가 완료되었습니다! \n관리자 승인 후 지도에 나타납니다."); location.reload(); })
+    .catch(() => { alert("전송 실패"); btn.disabled = false; btn.innerText = "제보하기"; });
+  }
+
+  function openModify(id, name) {
+    var reason = prompt(`[${name}] 수정 또는 삭제가 필요한 이유를 적어주세요.`);
+    if(!reason) return;
+    fetch(GAS_URL, {
+      method: "POST",
+      body: JSON.stringify({ action: "modify", 일련번호: id, 장소명: name, 수정요청사항: reason })
+    }).then(() => alert("신고가 접수되었습니다. 검토 후 반영하겠습니다."));
+  }
+</script>
+</body>
+</html>
